@@ -46,9 +46,6 @@ body {
 <body>
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script src="http://d3js.org/d3.geo.tile.v0.min.js"></script>
-<script src="https://cdn.rawgit.com/devTristan/pbf/master/dist/pbf.min.js"></script>
-<script src="https://rawgit.com/devTristan/vector-tile-js/master/dist/vectortile.min.js"></script>
-
 <script>
 
 var width = Math.max(960, window.innerWidth),
@@ -61,6 +58,11 @@ var tile = d3.geo.tile()
 var projection = d3.geo.mercator()
     .scale((1 << 21) / 2 / Math.PI)
     .translate([-width / 2, -height / 2]); // just temporary
+
+var tileProjection = d3.geo.mercator();
+
+var tilePath = d3.geo.path()
+    .projection(tileProjection);
 
 var zoom = d3.behavior.zoom()
     .scale(projection.scale() * 2 * Math.PI)
@@ -110,38 +112,21 @@ function zoomed() {
       .style("top", function(d) { return d[1] * 256 + "px"; })
       .each(function(d) {
         var svg = d3.select(this);
-        this._xhr = d3.xhr("https://vector.mapzen.com/osm/all/" + d[2] + "/" + d[0] + "/" + d[1] + ".mapbox").responseType('arraybuffer').get(function(error, json) {
-          
-          var tile = new VectorTile( new pbf( new Uint8Array(json.response) ) );
-          var extents = 4096;
+        this._xhr = d3.json("https://vector.mapzen.com/osm/all/" + d[2] + "/" + d[0] + "/" + d[1] + ".json", function(error, json) {
+          var k = Math.pow(2, d[2]) * 256; // size of the world in pixels
 
-          var data = {};
-
-          for (var key in tile.layers) {
-            data[key] = tile.layers[key].toGeoJSON();
-          }
-
-          var tile_projection = d3.geo.transform({
-            point: function(x, y) {
-              x = x/extents*256;
-              y = y/extents*256;
-
-              this.stream.point(x, y);
-            }
-          })
-
-          var tilePath = d3.geo.path()
-          .projection(tile_projection)
+          tilePath.projection()
+              .translate([k / 2 - d[0] * 256, k / 2 - d[1] * 256]) // [0°,0°] in pixels
+              .scale(k / 2 / Math.PI);
 
           layers.forEach(function(layer){
-            var layer_data = data[layer];
-            
-            if (layer_data) {
+            var data = json[layer];
+            if (data) {
               svg.selectAll("path")
-                .data(layer_data.features.sort(function(a, b) { return a.properties.sort_key ? a.properties.sort_key - b.properties.sort_key : 0 }))
+                .data(data.features.sort(function(a, b) { return a.properties.sort_key ? a.properties.sort_key - b.properties.sort_key : 0 }))
               .enter().append("path")
                 .attr("class", function(d) { var kind = d.properties.kind || ''; return layer + ' ' + kind; })
-                .attr("d", tilePath );
+                .attr("d", tilePath);
             }
           });
         });
