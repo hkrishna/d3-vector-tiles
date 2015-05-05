@@ -38,8 +38,17 @@ body {
 
 .info {
   position: absolute;
-  bottom: 10px;
-  left: 10px;
+  bottom: 0px;
+  right: 0px;
+  background: #fff;
+  background: rgba(255, 255, 255, 0.8);
+  margin: 0;
+  font-size:11px;
+  padding:2px 5px;
+}
+
+.info a {
+  text-decoration: none;
 }
 
 </style>
@@ -78,7 +87,8 @@ var layer = map.append("div")
     .attr("class", "layer");
 
 var info = map.append("div")
-    .attr("class", "info");
+    .attr("class", "info")
+    .html('© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a> | Tiles courtesy of <a href="https://mapzen.com/projects/vector-tiles" target="_blank">Mapzen</a>');
 
 zoomed();
 
