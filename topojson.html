@@ -77,8 +77,7 @@ var map = d3.select("body").append("div")
     .attr("class", "map")
     .style("width", width + "px")
     .style("height", height + "px")
-    .call(zoom)
-    .on("mousemove", mousemoved);
+    .call(zoom);
 
 var layer = map.append("div")
     .attr("class", "layer");
@@ -139,10 +138,6 @@ function zoomed() {
           });
         });
       });
-}
-
-function mousemoved() {
-  info.text(formatLocation(projection.invert(d3.mouse(this)), zoom.scale()));
 }
 
 function matrix3d(scale, translate) {
