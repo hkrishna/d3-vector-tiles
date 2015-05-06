@@ -125,6 +125,11 @@ var map = d3.select("body").append("div")
 var layer = map.append("div")
     .attr("class", "layer");
 
+//disable mousewheel zoom if iframed
+if (window.self !== window.top) {
+  map.on("wheel.zoom", null);
+}
+
 var zoom_controls = map.append("div")
     .attr("class", "zoom-container");
 
