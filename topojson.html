@@ -68,9 +68,10 @@ a.zoom:last-child {
 .tile .minor_road { stroke: #000; }
 .tile .highway { stroke: #fa25bf; stroke-width: 1.5px; }
 .tile .rail { stroke: #000; }
-.tile .buildings { stroke: #45414c; fill: #aba6b3; }
-.tile .landuse { stroke: #918b9b; fill: #a29dab; }
-.tile .water { stroke: #357abf; fill: #357abf; }
+.tile .buildings-layer { stroke: #45414c; fill: #aba6b3; }
+.tile .landuse-layer { stroke: #918b9b; fill: #a29dab; }
+.tile .water, .tile .ocean { fill: #357abf; stroke: #357abf; }
+.tile .water-layer, .tile .river, .tile .stream, .tile .canal { stroke: #357abf; stroke-width: 1.5px;}
 
 .info {
   position: absolute;
@@ -197,7 +198,7 @@ function zoomed() {
               svg.selectAll("path")
                 .data(layer_data.features.sort(function(a, b) { return a.properties.sort_key ? a.properties.sort_key - b.properties.sort_key : 0 }))
               .enter().append("path")
-                .attr("class", function(d) { var kind = d.properties.kind || ''; return layer + ' ' + kind; })
+                .attr("class", function(d) { var kind = d.properties.kind || ''; return layer + '-layer ' + kind; })
                 .attr("d", tilePath);
             }
           });
