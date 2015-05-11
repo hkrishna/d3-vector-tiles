@@ -7,7 +7,7 @@ var tile = d3.geo.tile()
     .size([width, height]);
 
 var projection = d3.geo.mercator()
-    .scale((1 << 21) / 2 / Math.PI)
+    .scale((1 << 23) / 2 / Math.PI)
     .translate([-width / 2, -height / 2]); // just temporary
 
 var tileProjection = d3.geo.mercator();
@@ -18,7 +18,8 @@ var tilePath = d3.geo.path()
 var zoom = d3.behavior.zoom()
     .scale(projection.scale() * 2 * Math.PI)
     .scaleExtent([1 << 20, 1 << 23])
-    .translate(projection([-74.0064, 40.7142]).map(function(x) { return -x; }))
+    //sf
+    .translate(projection([-122.3929, 37.7878]).map(function(x) { return -x; }))
     .on("zoom", zoomed);
 
 var map = d3.select("body").append("div")
