@@ -1,6 +1,6 @@
 
-var width = Math.max(960, window.innerWidth),
-    height = Math.max(500, window.innerHeight),
+var width = window.innerWidth,
+    height = window.innerHeight,
     prefix = prefixMatch(["webkit", "ms", "Moz", "O"]);
 
 var tile = d3.geo.tile()
@@ -143,7 +143,10 @@ function zoomClick() {
 }
 
 d3.selectAll('a.zoom').on('click', zoomClick);
-
+//disable mousewheel zoom if iframed
+if (window.self !== window.top) {
+  map.on("wheel.zoom", null);
+}
 
 // initialize mapzen bug
 var mzBug = new MapzenBug({
