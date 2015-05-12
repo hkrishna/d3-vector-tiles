@@ -143,6 +143,7 @@ function zoomClick() {
 }
 
 d3.selectAll('a.zoom').on('click', zoomClick);
+
 //disable mousewheel zoom if iframed
 if (window.self !== window.top) {
   map.on("wheel.zoom", null);
