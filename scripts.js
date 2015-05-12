@@ -149,5 +149,6 @@ d3.selectAll('a.zoom').on('click', zoomClick);
 var mzBug = new MapzenBug({
   name: window.bugTitle,
   link: 'https://github.com/mapzen/d3-vector-tiles',
-  twitterShareMsg: 'Wow, what cool demo by @mapzen.'
+  tweet: 'A D3 vector map demo from @mapzen',
+  repo: 'https://github.com/mapzen/d3-vector-tiles'
 });
