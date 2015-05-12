@@ -51,7 +51,7 @@ var zoom_out = zoom_controls.append("a")
 
 var info = map.append("div")
     .attr("class", "info")
-    .html('<a href="http://bl.ocks.org/mbostock/5593150" target="_blank">Mike Bostock</a> | © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a> | <a href="https://mapzen.com/projects/vector-tiles" title="Tiles courtesy of Mapzen" target="_blank">Mapzen</a>');
+    .html('<a href="http://bl.ocks.org/mbostock/5593150" target="_blank">Mike Bostock</a> | © <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a> | <a href="https://mapzen.com/projects/vector-tiles" title="Tiles courtesy of Mapzen" target="_blank">Mapzen</a>');
 
 zoomed();
 

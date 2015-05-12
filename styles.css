@@ -84,4 +84,9 @@ a.zoom:last-child {
 
 .info a {
   text-decoration: none;
+  color: #0078a8;
+}
+
+.info a:hover {
+  text-decoration: underline;
 }
