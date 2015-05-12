@@ -18,8 +18,8 @@ var tilePath = d3.geo.path()
 var zoom = d3.behavior.zoom()
     .scale(projection.scale() * 2 * Math.PI)
     .scaleExtent([1 << 12, 1 << 25])
-    //sf
-    .translate(projection([-122.3929, 37.7878]).map(function(x) { return -x; }))
+    //sf - 37.7524/-122.4407
+    .translate(projection([-122.4407, 37.7524]).map(function(x) { return -x; }))
     .on("zoom", zoomed);
 
 var map = d3.select("body").append("div")
