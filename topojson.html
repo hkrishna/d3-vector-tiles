@@ -13,7 +13,7 @@
   var layers = ['water', 'landuse', 'roads', 'buildings'];
   window.renderTiles = function(d) {
     var svg = d3.select(this);
-    this._xhr = d3.json("https://vector.mapzen.com/osm/all/" + d[2] + "/" + d[0] + "/" + d[1] + ".topojson", function(error, json) {
+    this._xhr = d3.json("https://vector.mapzen.com/osm/all/" + d[2] + "/" + d[0] + "/" + d[1] + ".topojson?api_key=vector-tiles-LM25tq4", function(error, json) {
       var k = Math.pow(2, d[2]) * 256; // size of the world in pixels
 
       tilePath.projection()

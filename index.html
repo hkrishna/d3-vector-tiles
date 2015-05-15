@@ -14,7 +14,7 @@
   var layers = ['water', 'landuse', 'roads', 'buildings'];
   window.renderTiles = function(d) {
     var svg = d3.select(this);
-    this._xhr = d3.xhr("https://vector.mapzen.com/osm/all/" + d[2] + "/" + d[0] + "/" + d[1] + ".mvt").responseType('arraybuffer').get(function(error, json) {
+    this._xhr = d3.xhr("https://vector.mapzen.com/osm/all/" + d[2] + "/" + d[0] + "/" + d[1] + ".mvt?api_key=vector-tiles-LM25tq4").responseType('arraybuffer').get(function(error, json) {
       
       var tile = new VectorTile( new pbf( new Uint8Array(json.response) ) );
       var extents = 4096;
