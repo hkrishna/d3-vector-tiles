@@ -56,6 +56,8 @@ window.onresize = function () {
   height = window.innerHeight;
   map.style("width", width + "px")
     .style("height", height + "px");
+  tile = d3.geo.tile()
+    .size([width, height]);
   zoomed();
 }
 
