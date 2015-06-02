@@ -55,6 +55,15 @@ var info = map.append("div")
 
 zoomed();
 
+// Resize when window resizes
+window.onresize = function () {
+  width = window.innerWidth;
+  height = window.innerHeight;
+  map.style("width", width + "px")
+    .style("height", height + "px");
+  zoomed();
+}
+
 function zoomed() {
   var tiles = tile
       .scale(zoom.scale())
