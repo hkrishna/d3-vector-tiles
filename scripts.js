@@ -1,6 +1,6 @@
 
-var width = Math.max(960, window.innerWidth),
-    height = Math.max(500, window.innerHeight),
+var width = window.innerWidth,
+    height = window.innerHeight,
     prefix = prefixMatch(["webkit", "ms", "Moz", "O"]);
 
 var tile = d3.geo.tile()
@@ -28,11 +28,6 @@ var map = d3.select("body").append("div")
     .style("height", height + "px")
     .call(zoom);
 
-//disable mousewheel zoom if iframed
-if (window.self !== window.top) {
-  map.on("wheel.zoom", null);
-}
-
 var layer = map.append("div")
     .attr("class", "layer");
 
@@ -51,9 +46,20 @@ var zoom_out = zoom_controls.append("a")
 
 var info = map.append("div")
     .attr("class", "info")
-    .html('<a href="http://bl.ocks.org/mbostock/5593150" target="_blank">Mike Bostock</a> | © <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a> | <a href="https://mapzen.com/projects/vector-tiles" title="Tiles courtesy of Mapzen" target="_blank">Mapzen</a>');
+    .html('<a href="http://bl.ocks.org/mbostock/5593150" target="_top">Mike Bostock</a> | © <a href="https://www.openstreetmap.org/copyright" target="_top">OpenStreetMap contributors</a> | <a href="https://mapzen.com/projects/vector-tiles" title="Tiles courtesy of Mapzen" target="_top">Mapzen</a>');
 
 zoomed();
+
+// Resize when window resizes
+window.onresize = function () {
+  width = window.innerWidth;
+  height = window.innerHeight;
+  map.style("width", width + "px")
+    .style("height", height + "px");
+  tile = d3.geo.tile()
+    .size([width, height]);
+  zoomed();
+}
 
 function zoomed() {
   var tiles = tile
@@ -144,6 +150,10 @@ function zoomClick() {
 
 d3.selectAll('a.zoom').on('click', zoomClick);
 
+//disable mousewheel zoom if iframed
+if (window.self !== window.top) {
+  map.on("wheel.zoom", null);
+}
 
 // initialize mapzen bug
 var mzBug = new MapzenBug({
