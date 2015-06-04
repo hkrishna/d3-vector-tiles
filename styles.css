@@ -90,3 +90,11 @@ a.zoom:last-child {
 .info a:hover {
   text-decoration: underline;
 }
+
+/* For non touch devices, move control out of the way at small window widths */
+@media (max-width: 752px) {
+  /* 767px - 15px for scrollbar */
+  .mapzen-demo-iframed .zoom-container {
+    top: 50px;
+  }
+}
