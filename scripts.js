@@ -153,6 +153,13 @@ d3.selectAll('a.zoom').on('click', zoomClick);
 //disable mousewheel zoom if iframed
 if (window.self !== window.top) {
   map.on("wheel.zoom", null);
+
+  document.documentElement.className += ' mapzen-demo-iframed';
+}
+
+// Hide zoom control on touch devices, which interferes with project page navigation overlay
+if (('ontouchstart' in window) || (window.DocumentTouch && document instanceof DocumentTouch)) {
+  document.getElementsByClassName('zoom-container')[0].style.display = 'none';
 }
 
 // initialize mapzen bug
