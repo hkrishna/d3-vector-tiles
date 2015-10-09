@@ -61,13 +61,14 @@ a.zoom:last-child {
 }
 
 .tile .water, .tile .ocean { fill: #9DD9D2; stroke: #9DD9D2; }
-.tile .water-layer, .tile .river, .tile .stream, .tile .canal { stroke: #9DD9D2; stroke-width: 1.5px;}
 .tile .riverbank { fill: #9DD9D2; }
+.tile .water-layer, .tile .river, .tile .stream, .tile .canal { fill: none; stroke: #9DD9D2; stroke-width: 1.5px; }
+.tile .water_boundary, .tile .ocean_boundary, .tile .riverbank_boundary { fill: none; stroke: #93cbc4; stroke-width: 0.5px; }
 .tile .major_road { stroke: #fb7b7a; stroke-width: 1px; }
 .tile .minor_road { stroke: #999; stroke-width: 0.5px; }
 .tile .highway { stroke: #FA4A48; stroke-width: 1.5px; }
 .tile .buildings-layer { stroke: #987284; stroke-width: 0.15px; }
-.tile .park, .tile .nature_reserve, .tile .wood, .tile .protected-land {fill: #88D18A;}
+.tile .park, .tile .nature_reserve, .tile .wood, .tile .protected-land { fill: #88D18A; stroke: #88D18A; }
 .tile .rail { stroke: #503D3F; stroke-width: 0.5px; }
 
 .info {
