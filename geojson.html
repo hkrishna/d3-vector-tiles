@@ -30,7 +30,7 @@
             .attr("class", function(d) { 
               var kind = d.properties.kind || ''; 
               if(d.properties.boundary=='yes') kind += '_boundary';
-              if(d.properties.label_position=='yes') kind += '_label_position';
+              if(d.properties.label_placement=='yes') kind += '_label_placement';
               return layer + '-layer ' + kind; })
             .attr("d", tilePath);
         }
