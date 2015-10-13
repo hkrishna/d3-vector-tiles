@@ -7,7 +7,7 @@ var tile = d3.geo.tile()
     .size([width, height]);
 
 var projection = d3.geo.mercator()
-    .scale((1 << 21) / 2 / Math.PI)
+    .scale((1 << 21) / 2 / Math.PI) // change scale here, 21 is about z13
     .translate([-width / 2, -height / 2]); // just temporary
 
 var tileProjection = d3.geo.mercator();
@@ -17,7 +17,7 @@ var tilePath = d3.geo.path()
 
 var zoom = d3.behavior.zoom()
     .scale(projection.scale() * 2 * Math.PI)
-    .scaleExtent([1 << 12, 1 << 25])
+    .scaleExtent([1 << 12, 1 << 25]) // 12 to 25 is roughly z4-z5 to z17
     //sf - 37.7524/-122.4407
     .translate(projection([-122.4407, 37.7524]).map(function(x) { return -x; }))
     .on("zoom", zoomed);
