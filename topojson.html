@@ -18,7 +18,8 @@
 
       tilePath.projection()
           .translate([k / 2 - d[0] * 256, k / 2 - d[1] * 256]) // [0°,0°] in pixels
-          .scale(k / 2 / Math.PI);
+          .scale(k / 2 / Math.PI)
+          .precision(0);
       
       var data = {};
       for (var key in json.objects) {
@@ -31,7 +32,11 @@
           svg.selectAll("path")
             .data(layer_data.features.sort(function(a, b) { return a.properties.sort_key ? a.properties.sort_key - b.properties.sort_key : 0 }))
           .enter().append("path")
-            .attr("class", function(d) { var kind = d.properties.kind || ''; return layer + '-layer ' + kind; })
+            .attr("class", function(d) { 
+              var kind = d.properties.kind || '';
+              if(d.properties.boundary=='yes') kind += '_boundary';
+              if(d.properties.label_position=='yes') kind += '_label_position';
+              return layer + '-layer ' + kind; })
             .attr("d", tilePath);
         }
       });
