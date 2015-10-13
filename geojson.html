@@ -27,7 +27,7 @@
           svg.selectAll("path")
             .data(data.features.sort(function(a, b) { return a.properties.sort_key ? a.properties.sort_key - b.properties.sort_key : 0 }))
           .enter().append("path")
-            .attr("class", function(d) { var kind = d.properties.kind || ''; return layer + ' ' + kind; })
+            .attr("class", function(d) { var kind = d.properties.kind || ''; if(d.properties.boundary){kind += '_boundary';} return layer + ' ' + kind; })
             .attr("d", tilePath);
         }
       });
