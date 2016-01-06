@@ -6,7 +6,6 @@
 <script src="d3.v3.min.js"></script>
 <script src="d3.geo.tile.v0.min.js"></script>
 <script src='//s3.amazonaws.com/assets-staging.mapzen.com/ui/components/bug/bug.min.js'></script>
-
 <script type='text/javascript'>
   window.bugTitle = 'Map using d3 and geojson';
   
@@ -27,7 +26,7 @@
           svg.selectAll("path")
             .data(data.features.sort(function(a, b) { return a.properties.sort_key ? a.properties.sort_key - b.properties.sort_key : 0 }))
           .enter().append("path")
-            .attr("class", function(d) { var kind = d.properties.kind || ''; if(d.properties.boundary){kind += '_boundary';} return layer + ' ' + kind; })
+            .attr("class", function(d) { var kind = d.properties.kind || ''; if(d.properties.boundary=='yes'){kind += '_boundary';} if(d.properties.label_placement=='yes'){kind += '_label_placement';} return layer + '-layer ' + kind; })
             .attr("d", tilePath);
         }
       });
