@@ -14,40 +14,64 @@
   var layers = ['water', 'landuse', 'roads', 'buildings'];
   window.renderTiles = function(d) {
     var svg = d3.select(this);
-    this._xhr = d3.xhr("https://vector.mapzen.com/osm/all/" + d[2] + "/" + d[0] + "/" + d[1] + ".mvt?api_key=vector-tiles-LM25tq4").responseType('arraybuffer').get(function(error, json) {
+    var zoom = d[2];
+    this._xhr = d3.xhr("https://vector.mapzen.com/osm/all/" + zoom + "/" + d[0] + "/" + d[1] + ".mvt?api_key=vector-tiles-LM25tq4").responseType('arraybuffer').get(function(error, json) {
       
       var tile = new VectorTile( new pbf( new Uint8Array(json.response) ) );
       var extents = 4096;
 
       var data = {};
-
       for (var key in tile.layers) {
         data[key] = tile.layers[key].toGeoJSON();
       }
 
       var tile_projection = d3.geo.transform({
         point: function(x, y) {
-          x = x/extents*256;
-          y = y/extents*256;
+          // Sometimes PBF points in a mixed-geometry layer are corrupted
+          if(!isNaN(y)){
+            x = x/extents*256;
+            y = y/extents*256;
+          } else {
+            y = x[0][1]/extents * 256;
+            x = x[0][0]/extents * 256;
+          }
 
           this.stream.point(x, y);
         }
-      })
+      })      
 
       var tilePath = d3.geo.path()
       .projection(tile_projection)
 
+      // build up a single concatenated array of all tile features from all tile layers
+      var features = [];
       layers.forEach(function(layer){
-        var layer_data = data[layer];
-        
-        if (layer_data) {
-          svg.selectAll("path")
-            .data(layer_data.features.sort(function(a, b) { return a.properties.sort_key ? a.properties.sort_key - b.properties.sort_key : 0 }))
-          .enter().append("path")
-            .attr("class", function(d) { var kind = d.properties.kind || ''; if(d.properties.boundary=='yes'){kind += '_boundary';} if(d.properties.label_placement=='yes'){kind += '_label_placement';} return layer + '-layer ' + kind; })
-            .attr("d", tilePath );
+        if(data[layer])
+        {
+            for(var i in data[layer].features)
+            {
+                // Don't include any label placement points
+                if(data[layer].features[i].properties.label_placement == 'yes') { continue }
+                
+                // Don't show large buildings at z13 or below.
+                if(zoom <= 13 && layer == 'buildings') { continue }
+                
+                // Don't show small buildings at z14 or below.
+                if(zoom <= 14 && layer == 'buildings' && data[layer].features[i].properties.area < 2000) { continue }
+                
+                data[layer].features[i].layer_name = layer;
+                features.push(data[layer].features[i]);
+            }
         }
       });
+      
+      // put all the features into SVG paths
+      svg.selectAll("path")
+        .data(features.sort(function(a, b) { return a.properties.sort_key ? a.properties.sort_key - b.properties.sort_key : 0 }))
+      .enter().append("path")
+        .attr("class", function(d) { var kind = d.properties.kind || ''; if(d.properties.boundary=='yes'){kind += '_boundary';} return d.layer_name + '-layer ' + kind; })
+        .attr("d", tilePath);
+
     });
   };
 </script>
