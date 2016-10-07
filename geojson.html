@@ -5,27 +5,21 @@
 <body>
 <script src="d3.v3.min.js"></script>
 <script src="d3.geo.tile.v0.min.js"></script>
-<script src="https://cdn.rawgit.com/mbostock/topojson/3ed6ee9e04d4/topojson.js"></script>
 <script src='//s3.amazonaws.com/assets-staging.mapzen.com/ui/components/bug/bug.min.js'></script>
 <script type='text/javascript'>
-  window.bugTitle = 'Map using d3 and topojson';
+  window.bugTitle = 'Map using d3 and geojson';
 
   var layers = ['water', 'landuse', 'roads', 'buildings'];
   window.renderTiles = function(d) {
     var svg = d3.select(this);
     var zoom = d[2];
-    this._xhr = d3.json("https://tile.dev.mapzen.com/mapzen/vector/v1/all/" + zoom + "/" + d[0] + "/" + d[1] + ".topojson?api_key=vector-tiles-LM25tq4", function(error, json) {
+    this._xhr = d3.json("https://tile.dev.mapzen.com/mapzen/vector/v1/all/" + zoom + "/" + d[0] + "/" + d[1] + ".json?api_key=vector-tiles-LM25tq4", function(error, data) {
       var k = Math.pow(2, d[2]) * 256; // size of the world in pixels
 
       tilePath.projection()
           .translate([k / 2 - d[0] * 256, k / 2 - d[1] * 256]) // [0°,0°] in pixels
           .scale(k / 2 / Math.PI)
           .precision(0);
-
-      var data = {};
-      for (var key in json.objects) {
-        data[key] = topojson.feature(json, json.objects[key]);
-      }
 
       // build up a single concatenated array of all tile features from all tile layers
       var features = [];
@@ -55,6 +49,7 @@
       .enter().append("path")
         .attr("class", function(d) { var kind = d.properties.kind || ''; if(d.properties.boundary){kind += '_boundary';} return d.layer_name + '-layer ' + kind; })
         .attr("d", tilePath);
+
     });
   };
 </script>
