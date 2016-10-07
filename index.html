@@ -10,13 +10,13 @@
 <script src='//s3.amazonaws.com/assets-staging.mapzen.com/ui/components/bug/bug.min.js'></script>
 <script type='text/javascript'>
   window.bugTitle = 'Map using d3 and vector PBF';
-  
+
   var layers = ['water', 'landuse', 'roads', 'buildings'];
   window.renderTiles = function(d) {
     var svg = d3.select(this);
     var zoom = d[2];
-    this._xhr = d3.xhr("https://vector.mapzen.com/osm/all/" + zoom + "/" + d[0] + "/" + d[1] + ".mvt?api_key=vector-tiles-LM25tq4").responseType('arraybuffer').get(function(error, json) {
-      
+    this._xhr = d3.xhr("https://tile.dev.mapzen.com/mapzen/vector/v1/all/" + zoom + "/" + d[0] + "/" + d[1] + ".mvt?api_key=vector-tiles-LM25tq4").responseType('arraybuffer').get(function(error, json) {
+
       var tile = new VectorTile( new pbf( new Uint8Array(json.response) ) );
       var extents = 4096;
 
@@ -38,7 +38,7 @@
 
           this.stream.point(x, y);
         }
-      })      
+      })
 
       var tilePath = d3.geo.path()
       .projection(tile_projection)
@@ -51,25 +51,25 @@
             for(var i in data[layer].features)
             {
                 // Don't include any label placement points
-                if(data[layer].features[i].properties.label_placement == 'yes') { continue }
-                
+                if(data[layer].features[i].properties.label_placement) { continue }
+
                 // Don't show large buildings at z13 or below.
                 if(zoom <= 13 && layer == 'buildings') { continue }
-                
+
                 // Don't show small buildings at z14 or below.
                 if(zoom <= 14 && layer == 'buildings' && data[layer].features[i].properties.area < 2000) { continue }
-                
+
                 data[layer].features[i].layer_name = layer;
                 features.push(data[layer].features[i]);
             }
         }
       });
-      
+
       // put all the features into SVG paths
       svg.selectAll("path")
-        .data(features.sort(function(a, b) { return a.properties.sort_key ? a.properties.sort_key - b.properties.sort_key : 0 }))
+        .data(features.sort(function(a, b) { return a.properties.sort_rank ? a.properties.sort_rank - b.properties.sort_rank : 0 }))
       .enter().append("path")
-        .attr("class", function(d) { var kind = d.properties.kind || ''; if(d.properties.boundary=='yes'){kind += '_boundary';} return d.layer_name + '-layer ' + kind; })
+        .attr("class", function(d) { var kind = d.properties.kind || ''; if(d.properties.boundary){kind += '_boundary';} return d.layer_name + '-layer ' + kind; })
         .attr("d", tilePath);
 
     });

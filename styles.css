@@ -69,6 +69,7 @@ a.zoom:last-child {
 .tile .highway { stroke: #FA4A48; stroke-width: 1.5px; }
 .tile .buildings-layer { stroke: #987284; stroke-width: 0.15px; }
 .tile .park, .tile .nature_reserve, .tile .wood, .tile .protected_land { fill: #88D18A; stroke: #88D18A; stroke-width: 0.5px; }
+.tile .pier { fill: #fff; stroke: #fff; stroke-width: 0.5px; }
 .tile .rail { stroke: #503D3F; stroke-width: 0.5px; }
 
 .info {
