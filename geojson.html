@@ -5,43 +5,22 @@
 <body>
 <script src="d3.v3.min.js"></script>
 <script src="d3.geo.tile.v0.min.js"></script>
-<script src="https://cdn.rawgit.com/devTristan/pbf/master/dist/pbf.min.js"></script>
-<script src="https://rawgit.com/devTristan/vector-tile-js/master/dist/vectortile.min.js"></script>
 <script src='//s3.amazonaws.com/assets-staging.mapzen.com/ui/components/bug/bug.min.js'></script>
 <script type='text/javascript'>
-  window.bugTitle = 'Map using d3 and vector PBF';
+  window.bugTitle = 'Map using d3 and geojson';
 
   var layers = ['water', 'landuse', 'roads', 'buildings'];
   window.renderTiles = function(d) {
     var svg = d3.select(this);
     var zoom = d[2];
-    this._xhr = d3.xhr("https://tile.nextzen.org/tilezen/vector/v1/all/" + zoom + "/" + d[0] + "/" + d[1] + ".mvt?api_key=_HFpZl-VRLKQlgcvQzWTPA").responseType('arraybuffer').get(function(error, json) {
+    this._xhr = d3.json("https://tile.nextzen.org/tilezen/vector/v1/all/" + zoom + "/" + d[0] + "/" + d[1] + ".json?api_key=_HFpZl-VRLKQlgcvQzWTPA", function(error, data) {
 
-      var tile = new VectorTile( new pbf( new Uint8Array(json.response) ) );
-      var extents = 4096;
+      var k = Math.pow(2, d[2]) * 256; // size of the world in pixels
 
-      var data = {};
-      for (var key in tile.layers) {
-        data[key] = tile.layers[key].toGeoJSON();
-      }
-
-      var tile_projection = d3.geo.transform({
-        point: function(x, y) {
-          // Sometimes PBF points in a mixed-geometry layer are corrupted
-          if(!isNaN(y)){
-            x = x/extents*256;
-            y = y/extents*256;
-          } else {
-            y = x[0][1]/extents * 256;
-            x = x[0][0]/extents * 256;
-          }
-
-          this.stream.point(x, y);
-        }
-      })
-
-      var tilePath = d3.geo.path()
-      .projection(tile_projection)
+      tilePath.projection()
+          .translate([k / 2 - d[0] * 256, k / 2 - d[1] * 256]) // [0°,0°] in pixels
+          .scale(k / 2 / Math.PI)
+          .precision(0);
 
       // build up a single concatenated array of all tile features from all tile layers
       var features = [];

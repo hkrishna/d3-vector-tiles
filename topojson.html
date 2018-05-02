@@ -1,164 +1,61 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
-<style>
-
-body {
-  margin: 0;
-}
-
-.map {
-  position: relative;
-  overflow: hidden;
-}
-
-.layer {
-  position: absolute;
-}
-
-.tile {
-  position: absolute;
-  width: 256px;
-  height: 256px;
-}
-
-.tile path {
-  fill: none;
-  stroke: #000;
-  stroke-linejoin: round;
-  stroke-linecap: round;
-}
-
-.tile .major_road { stroke: #000; }
-.tile .minor_road { stroke: #000; }
-.tile .highway { stroke: #fa25bf; stroke-width: 1.5px; }
-.tile .rail { stroke: #000; }
-.tile .buildings { stroke: #45414c; fill: #aba6b3; }
-.tile .landuse { stroke: #918b9b; fill: #a29dab; }
-.tile .water { stroke: #357abf; fill: #357abf; }
-
-.info {
-  position: absolute;
-  bottom: 10px;
-  left: 10px;
-}
-
-</style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link rel="stylesheet" href="styles.css" />
 <body>
-<script src="http://d3js.org/d3.v3.min.js"></script>
-<script src="http://d3js.org/d3.geo.tile.v0.min.js"></script>
-<script src="https://cdn.rawgit.com/mbostock/topojson/master/topojson.js"></script>
-
-<script>
-
-var width = Math.max(960, window.innerWidth),
-    height = Math.max(500, window.innerHeight),
-    prefix = prefixMatch(["webkit", "ms", "Moz", "O"]);
-
-var tile = d3.geo.tile()
-    .size([width, height]);
-
-var projection = d3.geo.mercator()
-    .scale((1 << 21) / 2 / Math.PI)
-    .translate([-width / 2, -height / 2]); // just temporary
-
-var tileProjection = d3.geo.mercator();
-
-var tilePath = d3.geo.path()
-    .projection(tileProjection);
-
-var zoom = d3.behavior.zoom()
-    .scale(projection.scale() * 2 * Math.PI)
-    .scaleExtent([1 << 20, 1 << 23])
-    .translate(projection([-74.0064, 40.7142]).map(function(x) { return -x; }))
-    .on("zoom", zoomed);
-
-var map = d3.select("body").append("div")
-    .attr("class", "map")
-    .style("width", width + "px")
-    .style("height", height + "px")
-    .call(zoom)
-    .on("mousemove", mousemoved);
-
-var layer = map.append("div")
-    .attr("class", "layer");
-
-var info = map.append("div")
-    .attr("class", "info");
-
-zoomed();
-
-function zoomed() {
-  var tiles = tile
-      .scale(zoom.scale())
-      .translate(zoom.translate())
-      ();
-
-  projection
-      .scale(zoom.scale() / 2 / Math.PI)
-      .translate(zoom.translate());
+<script src="d3.v3.min.js"></script>
+<script src="d3.geo.tile.v0.min.js"></script>
+<script src="https://cdn.rawgit.com/mbostock/topojson/3ed6ee9e04d4/topojson.js"></script>
+<script src='//s3.amazonaws.com/assets-staging.mapzen.com/ui/components/bug/bug.min.js'></script>
+<script type='text/javascript'>
+  window.bugTitle = 'Map using d3 and topojson';
 
   var layers = ['water', 'landuse', 'roads', 'buildings'];
+  window.renderTiles = function(d) {
+    var svg = d3.select(this);
+    var zoom = d[2];
+    this._xhr = d3.json("https://tile.nextzen.org/tilezen/vector/v1/all/" + zoom + "/" + d[0] + "/" + d[1] + ".topojson?api_key=_HFpZl-VRLKQlgcvQzWTPA", function(error, json) {
+      var k = Math.pow(2, d[2]) * 256; // size of the world in pixels
 
-  var image = layer
-      .style(prefix + "transform", matrix3d(tiles.scale, tiles.translate))
-    .selectAll(".tile")
-      .data(tiles, function(d) { return d; });
+      tilePath.projection()
+          .translate([k / 2 - d[0] * 256, k / 2 - d[1] * 256]) // [0°,0°] in pixels
+          .scale(k / 2 / Math.PI)
+          .precision(0);
 
-  image.exit()
-      .each(function(d) { this._xhr.abort(); })
-      .remove();
+      var data = {};
+      for (var key in json.objects) {
+        data[key] = topojson.feature(json, json.objects[key]);
+      }
 
-  image.enter().append("svg")
-      .attr("class", "tile")
-      .style("left", function(d) { return d[0] * 256 + "px"; })
-      .style("top", function(d) { return d[1] * 256 + "px"; })
-      .each(function(d) {
-        var svg = d3.select(this);
-        this._xhr = d3.json("https://vector.mapzen.com/osm/all/" + d[2] + "/" + d[0] + "/" + d[1] + ".topojson", function(error, json) {
-          var k = Math.pow(2, d[2]) * 256; // size of the world in pixels
+      // build up a single concatenated array of all tile features from all tile layers
+      var features = [];
+      layers.forEach(function(layer){
+        if(data[layer])
+        {
+            for(var i in data[layer].features)
+            {
+                // Don't include any label placement points
+                if(data[layer].features[i].properties.label_placement) { continue }
 
-          tilePath.projection()
-              .translate([k / 2 - d[0] * 256, k / 2 - d[1] * 256]) // [0°,0°] in pixels
-              .scale(k / 2 / Math.PI);
-          
-          var data = {};
-          for (var key in json.objects) {
-            data[key] = topojson.feature(json, json.objects[key]);
-          }
-          
-          layers.forEach(function(layer){
-            var layer_data = data[layer];
-            if (layer_data) {
-              svg.selectAll("path")
-                .data(layer_data.features.sort(function(a, b) { return a.properties.sort_key ? a.properties.sort_key - b.properties.sort_key : 0 }))
-              .enter().append("path")
-                .attr("class", function(d) { var kind = d.properties.kind || ''; return layer + ' ' + kind; })
-                .attr("d", tilePath);
+                // Don't show large buildings at z13 or below.
+                if(zoom <= 13 && layer == 'buildings') { continue }
+
+                // Don't show small buildings at z14 or below.
+                if(zoom <= 14 && layer == 'buildings' && data[layer].features[i].properties.area < 2000) { continue }
+
+                data[layer].features[i].layer_name = layer;
+                features.push(data[layer].features[i]);
             }
-          });
-        });
+        }
       });
-}
 
-function mousemoved() {
-  info.text(formatLocation(projection.invert(d3.mouse(this)), zoom.scale()));
-}
-
-function matrix3d(scale, translate) {
-  var k = scale / 256, r = scale % 1 ? Number : Math.round;
-  return "matrix3d(" + [k, 0, 0, 0, 0, k, 0, 0, 0, 0, k, 0, r(translate[0] * scale), r(translate[1] * scale), 0, 1 ] + ")";
-}
-
-function prefixMatch(p) {
-  var i = -1, n = p.length, s = document.body.style;
-  while (++i < n) if (p[i] + "Transform" in s) return "-" + p[i].toLowerCase() + "-";
-  return "";
-}
-
-function formatLocation(p, k) {
-  var format = d3.format("." + Math.floor(Math.log(k) / 2 - 2) + "f");
-  return (p[1] < 0 ? format(-p[1]) + "°S" : format(p[1]) + "°N") + " "
-       + (p[0] < 0 ? format(-p[0]) + "°W" : format(p[0]) + "°E");
-}
-
+      // put all the features into SVG paths
+      svg.selectAll("path")
+        .data(features.sort(function(a, b) { return a.properties.sort_rank ? a.properties.sort_rank - b.properties.sort_rank : 0 }))
+      .enter().append("path")
+        .attr("class", function(d) { var kind = d.properties.kind || ''; if(d.properties.boundary){kind += '_boundary';} return d.layer_name + '-layer ' + kind; })
+        .attr("d", tilePath);
+    });
+  };
 </script>
+<script src="scripts.js"></script>
